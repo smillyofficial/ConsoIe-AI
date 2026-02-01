@@ -12,452 +12,201 @@
             theme: {
                 extend: {
                     colors: {
-                        gray: {
-                            750: '#2d3748',
-                            850: '#1a202c',
-                            950: '#0d1117',
-                        },
-                        primary: {
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                        }
+                        gray: { 750: '#2d3748', 850: '#1a202c', 950: '#0d1117' },
+                        primary: { 500: '#3b82f6', 600: '#2563eb' }
                     },
                     fontFamily: {
-                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.3s ease-out forwards',
                         'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'bounce-subtle': 'bounceSubtle 2s infinite',
                     },
                     keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        },
-                        slideUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px) scale(0.98)' },
-                            '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
-                        },
-                        bounceSubtle: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-4px)' },
-                        }
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
                     }
                 }
             }
         }
     </script>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
-        pre { font-family: 'JetBrains Mono', monospace; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.3); border-radius: 20px; }
-        .dark ::-webkit-scrollbar-thumb { background: rgba(75, 85, 99, 0.5); }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.5); }
-
-        /* Markdown Styling */
-        .markdown-body p { margin-bottom: 0.75em; line-height: 1.6; }
-        .markdown-body pre { background-color: #111827; padding: 1.25em; border-radius: 0.75em; overflow-x: auto; margin: 1em 0; border: 1px solid rgba(255,255,255,0.1); }
-        .markdown-body code { font-family: 'JetBrains Mono', monospace; background-color: rgba(55, 65, 81, 0.5); padding: 0.2em 0.4em; border-radius: 0.4em; font-size: 0.9em; }
-        
-        /* Interactive States */
+        body { font-family: 'Inter', sans-serif; }
         .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        .chat-bubble-user { border-bottom-right-radius: 4px; }
-        .chat-bubble-ai { border-bottom-left-radius: 4px; }
-        
+        .markdown-body pre { background: #000; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; overflow-x: auto; border: 1px solid #333; }
+        .markdown-body code { font-family: 'JetBrains Mono', monospace; color: #60a5fa; }
         .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-        
-        .thinking-shimmer {
-            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite linear;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
-
-        /* Smooth Sidebar Transition */
-        #sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 flex h-screen overflow-hidden">
 
-    <!-- Mobile Sidebar Overlay -->
-    <div id="mobile-overlay" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden backdrop-blur-sm animate-fade-in" onclick="toggleSidebar()"></div>
-
-    <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white/80 dark:bg-gray-900/80 glass border-r border-gray-200 dark:border-gray-800 transform -translate-x-full lg:translate-x-0 lg:static lg:flex lg:flex-col flex flex-col h-full shadow-xl lg:shadow-none">
-        <div class="p-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-gray-950 dark:bg-white flex items-center justify-center shadow-lg transform transition hover:rotate-6">
-                    <img src="logo.png" alt="Console AI" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=C+A&background=0D1117&color=fff&font-size=0.5'">
-                </div>
-                <div class="flex flex-col">
-                    <span class="font-bold text-lg tracking-tight leading-none">Console AI</span>
-                    <span class="text-[10px] text-blue-500 font-mono font-bold mt-1 uppercase tracking-widest" id="current-mode-display">MASTER MODE</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="p-4">
-            <button onclick="createNewChat()" class="group w-full flex items-center gap-3 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transform hover:-translate-y-0.5 active:translate-y-0">
-                <i class="fa-solid fa-plus text-xs group-hover:rotate-90 transition-transform duration-300"></i>
-                <span class="text-sm font-semibold tracking-wide">New Conversation</span>
-            </button>
-        </div>
-
-        <div class="flex-1 overflow-y-auto px-3 py-2 space-y-1" id="chat-list">
-            <!-- Chat items injected here -->
-        </div>
-
-        <div class="p-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
-            <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-all duration-300">
-                <i class="fa-solid fa-moon dark:hidden text-lg"></i>
-                <i class="fa-solid fa-sun hidden dark:block text-lg"></i>
-            </button>
-            <button onclick="openSettings()" class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-all duration-300">
-                <i class="fa-solid fa-gear text-lg"></i>
-            </button>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-full relative w-full bg-white dark:bg-gray-950">
-        <!-- Top Nav (Mobile) -->
-        <header class="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 glass z-30 sticky top-0">
-            <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <i class="fa-solid fa-bars-staggered text-xl"></i>
-            </button>
-            <span class="font-bold tracking-tight">Console AI</span>
-            <div class="w-10"></div> 
-        </header>
-
-        <!-- Chat Viewport -->
-        <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 scroll-smooth">
-            <!-- Initial State -->
-            <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center animate-fade-in">
-                <div class="w-16 h-16 bg-blue-600/10 rounded-2xl flex items-center justify-center mb-6 animate-bounce-subtle">
-                     <i class="fa-solid fa-wand-magic-sparkles text-3xl text-blue-600"></i>
-                </div>
-                <h1 class="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">Unlock the power of AI</h1>
-                <p class="text-gray-500 dark:text-gray-400 max-w-lg mx-auto text-lg leading-relaxed">
-                    Start a new conversation to brainstorm ideas, write code, or just explore.
-                </p>
-                <div class="mt-8 flex gap-3">
-                    <span class="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-semibold uppercase tracking-widest text-gray-500" id="active-mode-badge">
-                        Master Mode Active
-                    </span>
-                </div>
-            </div>
-            
-            <div id="messages-area" class="max-w-4xl mx-auto w-full space-y-8 hidden pb-40"></div>
-        </div>
-
-        <!-- Input Bar -->
-        <div class="p-6 bg-gradient-to-t from-white via-white/90 to-transparent dark:from-gray-950 dark:via-gray-950/90 absolute bottom-0 left-0 right-0">
-            <div class="max-w-4xl mx-auto">
-                <div class="relative group">
-                    <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-1000"></div>
-                    <div class="relative flex items-end gap-3 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-3 shadow-xl">
-                        <textarea 
-                            id="user-input" 
-                            rows="1" 
-                            placeholder="Message Console AI..." 
-                            class="w-full bg-transparent border-0 focus:ring-0 resize-none py-3 px-2 max-h-48 text-gray-900 dark:text-gray-100 placeholder-gray-400"
-                            oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
-                            onkeydown="handleEnter(event)"
-                        ></textarea>
-                        <button onclick="sendMessage()" id="send-btn" class="flex-shrink-0 w-12 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                            <i class="fa-solid fa-paper-plane text-lg"></i>
-                        </button>
-                    </div>
-                </div>
-                <p class="text-center text-[10px] text-gray-400 mt-4 tracking-wide uppercase">
-                    Console AI can make mistakes. Verify important information.
-                </p>
-            </div>
-        </div>
-    </main>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-opacity duration-300">
-        <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-800 animate-slide-up">
-            <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                <h2 class="text-xl font-bold tracking-tight">Preferences</h2>
-                <button onclick="closeSettings()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <i class="fa-solid fa-xmark text-gray-400"></i>
-                </button>
-            </div>
-            <div class="p-6 space-y-6">
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">AI Personality</label>
-                    <div class="space-y-3">
-                        <label class="relative flex items-center p-4 rounded-2xl border-2 border-transparent bg-gray-50 dark:bg-gray-850 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-all has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50/50 dark:has-[:checked]:bg-blue-900/10">
-                            <input type="radio" name="ai-mode" value="fast" class="sr-only" onchange="updateModeUI()">
-                            <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center mr-4 text-green-500">
-                                <i class="fa-solid fa-bolt"></i>
-                            </div>
-                            <div class="flex-1">
-                                <span class="text-sm font-bold block">Fast Writer</span>
-                                <p class="text-xs text-gray-500">Brief, to-the-point answers.</p>
-                            </div>
-                        </label>
-                        <label class="relative flex items-center p-4 rounded-2xl border-2 border-transparent bg-gray-50 dark:bg-gray-850 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-all has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50/50 dark:has-[:checked]:bg-blue-900/10">
-                            <input type="radio" name="ai-mode" value="master" class="sr-only" checked onchange="updateModeUI()">
-                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center mr-4 text-blue-500">
-                                <i class="fa-solid fa-brain"></i>
-                            </div>
-                            <div class="flex-1">
-                                <span class="text-sm font-bold block">Master Mode</span>
-                                <p class="text-xs text-gray-500">Intelligent, creative balance.</p>
-                            </div>
-                        </label>
-                        <label class="relative flex items-center p-4 rounded-2xl border-2 border-transparent bg-gray-50 dark:bg-gray-850 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-all has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50/50 dark:has-[:checked]:bg-blue-900/10">
-                            <input type="radio" name="ai-mode" value="refresh" class="sr-only" onchange="updateModeUI()">
-                            <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center mr-4 text-purple-500">
-                                <i class="fa-solid fa-microchip"></i>
-                            </div>
-                            <div class="flex-1">
-                                <span class="text-sm font-bold block">Refresh Mode</span>
-                                <p class="text-xs text-gray-500">Deep analysis (slow/thorough).</p>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div class="p-6 bg-gray-50 dark:bg-gray-850 flex justify-end">
-                <button onclick="closeSettings()" class="px-8 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-950 rounded-xl text-sm font-bold transform hover:scale-105 transition-transform active:scale-95">
-                    Save Changes
-                </button>
+    <!-- API KEY MODAL (Crucial for GitHub Pages) -->
+    <div id="api-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
+        <div class="bg-white dark:bg-gray-900 p-8 rounded-3xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-gray-800 animate-slide-up">
+            <h2 class="text-2xl font-bold mb-2">Connect to Gemini</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">To use this app on GitHub, you need an API key. Your key is stored locally in your browser.</p>
+            <input type="password" id="api-key-input" placeholder="Enter your Gemini API Key..." class="w-full p-4 bg-gray-100 dark:bg-gray-850 rounded-xl border-0 focus:ring-2 focus:ring-blue-500 mb-4 outline-none">
+            <div class="flex flex-col gap-3">
+                <button onclick="saveApiKey()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all">Save Key & Start Chatting</button>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-center text-xs text-blue-500 hover:underline">Get a free API key here →</a>
             </div>
         </div>
     </div>
 
-    <script>
-        const apiKey = ""; // Managed by environment
-        const STATE = {
-            chats: [],
-            activeChatId: null,
-            isGenerating: false,
-            mode: localStorage.getItem('console_ai_mode') || "master"
-        };
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white/80 dark:bg-gray-900/80 glass border-r border-gray-200 dark:border-gray-800 transform -translate-x-full lg:translate-x-0 lg:static flex flex-col h-full transition-transform duration-300">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center shadow-lg overflow-hidden border border-gray-800">
+                <img src="logo.png" alt="Logo" class="w-8 h-8 object-contain">
+            </div>
+            <span class="font-bold text-lg tracking-tight">Console AI</span>
+        </div>
 
-        marked.setOptions({ 
-            breaks: true, 
-            gfm: true,
-            highlight: function(code) { return code; } // Simple passthrough for safety
-        });
+        <div class="p-4">
+            <button onclick="createNewChat()" class="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/20 transition-all active:scale-95">
+                <i class="fa-solid fa-plus text-xs"></i> New Chat
+            </button>
+        </div>
+
+        <div id="chat-list" class="flex-1 overflow-y-auto px-3 space-y-1"></div>
+
+        <div class="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-between">
+            <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-moon dark:hidden"></i><i class="fa-solid fa-sun hidden dark:block"></i></button>
+            <button onclick="showApiModal()" class="text-xs font-bold text-gray-400 hover:text-blue-500 uppercase tracking-widest">Update API Key</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col relative w-full bg-white dark:bg-gray-950">
+        <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
+            <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center py-20">
+                <img src="logo.png" alt="Logo" class="w-20 h-20 mb-8 opacity-20 grayscale">
+                <h1 class="text-4xl font-black mb-2 tracking-tight">System Online</h1>
+                <p class="text-gray-500">How can I assist you today?</p>
+            </div>
+            <div id="messages-area" class="max-w-4xl mx-auto w-full space-y-8 pb-32"></div>
+        </div>
+
+        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white dark:from-gray-950">
+            <div class="max-w-4xl mx-auto flex items-end gap-3 bg-gray-100 dark:bg-gray-900 p-2 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl">
+                <textarea id="user-input" rows="1" placeholder="Type your message..." class="w-full bg-transparent border-0 focus:ring-0 py-3 px-4 resize-none" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                <button onclick="sendMessage()" id="send-btn" class="w-12 h-12 flex-shrink-0 bg-blue-600 rounded-xl text-white hover:bg-blue-700 transition-all"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let USER_API_KEY = localStorage.getItem('gemini_api_key') || "";
+        const STATE = { chats: [], activeChatId: null, isGenerating: false };
 
         function init() {
+            if (!USER_API_KEY) showApiModal();
             createNewChat(true);
             renderChatList();
-            renderMessages();
-            updateModeUI(true);
-            
-            // System appearance detection
-            if (localStorage.theme === 'dark' || (!localStorage.theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
+        }
+
+        function showApiModal() { document.getElementById('api-modal').classList.remove('hidden'); }
+        function saveApiKey() {
+            const val = document.getElementById('api-key-input').value.trim();
+            if (val) {
+                USER_API_KEY = val;
+                localStorage.setItem('gemini_api_key', val);
+                document.getElementById('api-modal').classList.add('hidden');
             }
         }
 
-        function createNewChat(isInit = false) {
-            const chat = { 
-                id: Date.now().toString(), 
-                title: "New Conversation", 
-                messages: [] 
-            };
-            STATE.chats.unshift(chat);
-            STATE.activeChatId = chat.id;
-            if (!isInit) { 
-                renderChatList(); 
-                renderMessages(); 
-                if(window.innerWidth < 1024) toggleSidebar(); 
-            }
-        }
-
-        function getSystemInstruction() {
-            if (STATE.mode === 'fast') return "You are an ultra-concise assistant. Avoid small talk. Provide facts instantly.";
-            if (STATE.mode === 'refresh') return "You are a deep-thinking analyst. Provide comprehensive, logically-structured, step-by-step explanations.";
-            return "You are a helpful, creative, and professional assistant. Provide well-formatted and insightful responses.";
+        function createNewChat(init = false) {
+            const id = Date.now().toString();
+            STATE.chats.unshift({ id, title: "New Conversation", messages: [] });
+            STATE.activeChatId = id;
+            if (!init) { renderChatList(); renderMessages(); }
         }
 
         async function sendMessage() {
-            const inputEl = document.getElementById('user-input');
-            const message = inputEl.value.trim();
-            if (!message || STATE.isGenerating) return;
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text || STATE.isGenerating) return;
 
             const chat = STATE.chats.find(c => c.id === STATE.activeChatId);
-            chat.messages.push({ role: 'user', content: message });
-            
-            // Update title on first message
-            if (chat.messages.length === 1) {
-                chat.title = message.length > 25 ? message.slice(0, 25) + "..." : message;
-                renderChatList();
-            }
+            chat.messages.push({ role: 'user', content: text });
+            if (chat.messages.length === 1) { chat.title = text.slice(0, 20) + "..."; renderChatList(); }
 
-            inputEl.value = '';
-            inputEl.style.height = 'auto';
+            input.value = '';
+            input.style.height = 'auto';
             renderMessages();
 
             STATE.isGenerating = true;
-            document.getElementById('send-btn').disabled = true;
             chat.messages.push({ role: 'model', content: '', isLoading: true });
             renderMessages();
 
-            // Simulate deep thinking if in refresh mode
-            if (STATE.mode === 'refresh') await new Promise(r => setTimeout(r, 4000));
-
             try {
-                const responseText = await fetchGeminiResponse(chat.messages);
-                const lastMsg = chat.messages[chat.messages.length - 1];
-                lastMsg.content = responseText;
-                lastMsg.isLoading = false;
-            } catch (error) {
-                const lastMsg = chat.messages[chat.messages.length - 1];
-                lastMsg.isLoading = false;
-                lastMsg.isError = true;
-                lastMsg.content = `### Error encountered\n${error.message}. Please check your connection or retry.`;
+                const response = await fetchGemini(chat.messages);
+                chat.messages[chat.messages.length - 1].content = response;
+                chat.messages[chat.messages.length - 1].isLoading = false;
+            } catch (e) {
+                chat.messages[chat.messages.length - 1].content = `**Error:** ${e.message}. Please click "Update API Key" below if your key is invalid.`;
+                chat.messages[chat.messages.length - 1].isLoading = false;
             } finally {
                 STATE.isGenerating = false;
-                document.getElementById('send-btn').disabled = false;
                 renderMessages();
-                const container = document.getElementById('chat-container');
-                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
             }
         }
 
-        async function fetchGeminiResponse(history) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const contents = history.filter(m => !m.isLoading && !m.isError).map(m => ({
+        async function fetchGemini(history) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${USER_API_KEY}`;
+            const contents = history.filter(m => !m.isLoading).map(m => ({
                 role: m.role === 'user' ? 'user' : 'model',
                 parts: [{ text: m.content }]
             }));
 
-            const payload = {
-                contents,
-                systemInstruction: { parts: [{ text: getSystemInstruction() }] }
-            };
-
-            // Exponential Backoff Implementation
-            const delays = [1000, 2000, 4000, 8000, 16000];
-            for (let i = 0; i < 5; i++) {
-                try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.error?.message || "API connection failed");
-                    return data.candidates[0].content.parts[0].text;
-                } catch (e) {
-                    if (i === 4) throw e;
-                    await new Promise(r => setTimeout(r, delays[i]));
-                }
-            }
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents })
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error.message);
+            return data.candidates[0].content.parts[0].text;
         }
 
         function renderMessages() {
-            const activeChat = STATE.chats.find(c => c.id === STATE.activeChatId);
-            const container = document.getElementById('messages-area');
+            const chat = STATE.chats.find(c => c.id === STATE.activeChatId);
+            const area = document.getElementById('messages-area');
             const welcome = document.getElementById('welcome-screen');
             
-            if (!activeChat || activeChat.messages.length === 0) {
-                welcome.style.display = 'flex';
-                container.classList.add('hidden');
-                return;
-            }
-            
-            welcome.style.display = 'none';
-            container.classList.remove('hidden');
-            
-            container.innerHTML = activeChat.messages.map(m => {
-                const isUser = m.role === 'user';
-                return `
-                <div class="flex gap-4 ${isUser ? 'flex-row-reverse' : 'flex-row'} animate-slide-up">
-                    <div class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isUser ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-800'}">
-                        <i class="fa-solid ${isUser ? 'fa-user' : 'fa-robot'} text-[10px] text-white ${!isUser ? 'dark:text-blue-400' : ''}"></i>
+            if (!chat || chat.messages.length === 0) { welcome.classList.remove('hidden'); area.classList.add('hidden'); return; }
+            welcome.classList.add('hidden');
+            area.classList.remove('hidden');
+
+            area.innerHTML = chat.messages.map(m => `
+                <div class="flex gap-4 ${m.role === 'user' ? 'flex-row-reverse' : ''} animate-fade-in">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${m.role === 'user' ? 'bg-blue-600' : 'bg-gray-800 border border-gray-700'}">
+                        ${m.role === 'user' ? '<i class="fa-solid fa-user text-[10px] text-white"></i>' : '<img src="logo.png" class="w-5 h-5">'}
                     </div>
-                    <div class="max-w-[85%] ${isUser ? 'chat-bubble-user bg-blue-600 text-white px-5 py-3 shadow-lg shadow-blue-500/10' : 'chat-bubble-ai bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 px-5 py-4 w-full shadow-sm'} rounded-2xl">
-                        ${m.isLoading ? `
-                            <div class="flex items-center gap-3">
-                                ${STATE.mode === 'refresh' ? 
-                                    '<i class="fa-solid fa-brain-circuit animate-pulse text-blue-500"></i><span class="thinking-shimmer text-sm font-bold">Processing Logic...</span>' : 
-                                    '<div class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></div><div class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></div>'}
-                            </div>
-                        ` : `
-                            <div class="markdown-body text-sm md:text-base leading-relaxed overflow-hidden">
-                                ${marked.parse(m.content)}
-                            </div>
-                        `}
+                    <div class="p-4 rounded-2xl max-w-[85%] ${m.role === 'user' ? 'bg-blue-600 text-white shadow-lg' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm'}">
+                        ${m.isLoading ? '<div class="flex gap-1"><div class="typing-dot w-1.5 h-1.5 bg-gray-400 rounded-full"></div><div class="typing-dot w-1.5 h-1.5 bg-gray-400 rounded-full" style="animation-delay: 0.2s"></div><div class="typing-dot w-1.5 h-1.5 bg-gray-400 rounded-full" style="animation-delay: 0.4s"></div></div>' : marked.parse(m.content)}
                     </div>
                 </div>
-                `;
-            }).join('');
+            `).join('');
+            document.getElementById('chat-container').scrollTo(0, document.getElementById('chat-container').scrollHeight);
         }
 
         function renderChatList() {
-            const list = document.getElementById('chat-list');
-            list.innerHTML = STATE.chats.map(c => `
-                <div onclick="switchChat('${c.id}')" class="group relative p-3 rounded-xl cursor-pointer text-sm mb-1 transition-all duration-300 flex items-center gap-3 ${c.id === STATE.activeChatId ? 'bg-blue-50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400 font-bold border border-blue-100 dark:border-blue-900/30' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}">
-                    <i class="fa-regular fa-comment-dots text-xs transition-transform group-hover:scale-110"></i> 
-                    <span class="flex-1 truncate">${c.title}</span>
-                    <button onclick="deleteChat(event, '${c.id}')" class="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-opacity"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+            document.getElementById('chat-list').innerHTML = STATE.chats.map(c => `
+                <div onclick="switchChat('${c.id}')" class="p-3 rounded-xl cursor-pointer text-sm truncate transition-all ${c.id === STATE.activeChatId ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-500 font-bold' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}">
+                    <i class="fa-regular fa-message mr-2"></i> ${c.title}
                 </div>
             `).join('');
         }
 
-        function updateModeUI(init = false) {
-            const radios = document.getElementsByName('ai-mode');
-            if (init) {
-                for(const r of radios) { if(r.value === STATE.mode) r.checked = true; }
-            } else {
-                for(const r of radios) { if(r.checked) STATE.mode = r.value; }
-                localStorage.setItem('console_ai_mode', STATE.mode);
-            }
-            
-            document.getElementById('current-mode-display').innerText = STATE.mode + " MODE";
-            const badge = document.getElementById('active-mode-badge');
-            badge.innerText = STATE.mode.charAt(0).toUpperCase() + STATE.mode.slice(1) + " Mode Active";
-        }
-
-        function switchChat(id) { 
-            STATE.activeChatId = id; 
-            renderChatList(); 
-            renderMessages(); 
-            if(window.innerWidth < 1024) toggleSidebar(); 
-        }
-
-        function deleteChat(e, id) {
-            e.stopPropagation();
-            STATE.chats = STATE.chats.filter(c => c.id !== id);
-            if (STATE.chats.length === 0) createNewChat(true);
-            else if (STATE.activeChatId === id) STATE.activeChatId = STATE.chats[0].id;
-            renderChatList();
-            renderMessages();
-        }
-
-        function toggleTheme() { document.documentElement.classList.toggle('dark'); localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'; }
-        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
-        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-        function handleEnter(e) { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-        function toggleSidebar() { 
-            document.getElementById('sidebar').classList.toggle('-translate-x-full'); 
-            document.getElementById('mobile-overlay').classList.toggle('hidden'); 
-        }
+        function switchChat(id) { STATE.activeChatId = id; renderChatList(); renderMessages(); }
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
         
         init();
     </script>
