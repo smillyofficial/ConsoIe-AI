@@ -4,171 +4,245 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Console AI</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        gray: { 750: '#2d3748', 850: '#1a202c', 950: '#0d1117' },
-                        primary: { 500: '#3b82f6', 600: '#2563eb' }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.3s ease-out forwards',
-                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    colors: { gray: { 850: '#141b26', 950: '#0a0f16' } },
+                    animation: { 
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate'
                     },
                     keyframes: {
-                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        glow: { '0%': { filter: 'drop-shadow(0 0 5px #3b82f6)' }, '100%': { filter: 'drop-shadow(0 0 20px #3b82f6)' } }
                     }
                 }
             }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        .markdown-body pre { background: #000; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; overflow-x: auto; border: 1px solid #333; }
-        .markdown-body code { font-family: 'JetBrains Mono', monospace; color: #60a5fa; }
-        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
-        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        code { font-family: 'JetBrains Mono', monospace; }
+        .markdown-body pre { background: #000; padding: 1rem; border-radius: 0.75rem; margin: 1rem 0; border: 1px solid #222; overflow-x: auto; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        .logo-gradient { fill: url(#logoGradient); }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 flex h-screen overflow-hidden">
+<body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 flex h-screen overflow-hidden">
 
-    <!-- API KEY MODAL (Crucial for GitHub Pages) -->
-    <div id="api-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
-        <div class="bg-white dark:bg-gray-900 p-8 rounded-3xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-gray-800 animate-slide-up">
-            <h2 class="text-2xl font-bold mb-2">Connect to Gemini</h2>
-            <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">To use this app on GitHub, you need an API key. Your key is stored locally in your browser.</p>
-            <input type="password" id="api-key-input" placeholder="Enter your Gemini API Key..." class="w-full p-4 bg-gray-100 dark:bg-gray-850 rounded-xl border-0 focus:ring-2 focus:ring-blue-500 mb-4 outline-none">
-            <div class="flex flex-col gap-3">
-                <button onclick="saveApiKey()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all">Save Key & Start Chatting</button>
-                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-center text-xs text-blue-500 hover:underline">Get a free API key here →</a>
+    <!-- SVG Logo Component -->
+    <template id="logo-svg">
+        <svg viewBox="0 0 100 100" class="w-full h-full animate-glow">
+            <defs>
+                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <path class="logo-gradient" d="M30 20 C 10 20, 10 80, 30 80 L 70 80 C 85 80, 85 65, 70 65 L 40 65 C 30 65, 30 35, 40 35 L 70 35 C 85 35, 85 20, 70 20 Z" />
+            <circle cx="70" cy="50" r="8" class="fill-white dark:fill-blue-400 opacity-80" />
+        </svg>
+    </template>
+
+    <!-- API SETUP OVERLAY -->
+    <div id="setup-screen" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6 bg-gray-950/90 backdrop-blur-md">
+        <div class="max-w-md w-full bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-200 dark:border-gray-800 shadow-2xl">
+            <div class="w-20 h-20 mb-6 mx-auto" id="setup-logo"></div>
+            <h2 class="text-2xl font-extrabold text-center mb-2">Activation Required</h2>
+            <p class="text-gray-500 text-center text-sm mb-6">Enter your Gemini API key to initialize the Console AI neural network. Keys are stored locally.</p>
+            
+            <input type="password" id="api-input" placeholder="Paste your API key here..." class="w-full bg-gray-100 dark:bg-gray-800 border-0 p-4 rounded-2xl mb-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            
+            <button onclick="saveKey()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition-all active:scale-95 mb-4">
+                Launch System
+            </button>
+            
+            <div class="text-center">
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-500 text-xs font-bold uppercase tracking-wider hover:underline">Get Free API Key →</a>
             </div>
         </div>
     </div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white/80 dark:bg-gray-900/80 glass border-r border-gray-200 dark:border-gray-800 transform -translate-x-full lg:translate-x-0 lg:static flex flex-col h-full transition-transform duration-300">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center shadow-lg overflow-hidden border border-gray-800">
-                <img src="logo.png" alt="Logo" class="w-8 h-8 object-contain">
-            </div>
-            <span class="font-bold text-lg tracking-tight">Console AI</span>
+    <aside class="w-72 border-r border-gray-200 dark:border-gray-800 flex flex-col hidden lg:flex glass">
+        <div class="p-6 flex items-center gap-3">
+            <div class="w-10 h-10" id="sidebar-logo"></div>
+            <span class="font-extrabold text-xl tracking-tight">Console AI</span>
         </div>
-
-        <div class="p-4">
-            <button onclick="createNewChat()" class="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/20 transition-all active:scale-95">
-                <i class="fa-solid fa-plus text-xs"></i> New Chat
+        
+        <div class="p-4 flex-1 overflow-y-auto custom-scrollbar" id="history-list">
+            <button onclick="newChat()" class="w-full py-3 px-4 mb-6 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-all">
+                <i class="fa-solid fa-plus"></i> New Session
             </button>
+            
+            <div class="mb-4">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">Neural Modes</p>
+                <div class="grid grid-cols-1 gap-1">
+                    <button onclick="setMode('standard')" id="btn-standard" class="mode-btn active p-2 rounded-lg text-left text-xs font-semibold flex items-center gap-2 transition-all bg-blue-50 dark:bg-blue-900/20 text-blue-500"><i class="fa-solid fa-brain w-4"></i> Standard</button>
+                    <button onclick="setMode('creative')" id="btn-creative" class="mode-btn p-2 rounded-lg text-left text-xs font-semibold flex items-center gap-2 transition-all text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-palette w-4"></i> Creative</button>
+                    <button onclick="setMode('technical')" id="btn-technical" class="mode-btn p-2 rounded-lg text-left text-xs font-semibold flex items-center gap-2 transition-all text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-code w-4"></i> Technical</button>
+                </div>
+            </div>
+
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">Recent</p>
+            <div id="chats-container" class="space-y-1"></div>
         </div>
 
-        <div id="chat-list" class="flex-1 overflow-y-auto px-3 space-y-1"></div>
-
-        <div class="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-between">
-            <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-moon dark:hidden"></i><i class="fa-solid fa-sun hidden dark:block"></i></button>
-            <button onclick="showApiModal()" class="text-xs font-bold text-gray-400 hover:text-blue-500 uppercase tracking-widest">Update API Key</button>
+        <div class="p-6 border-t border-gray-200 dark:border-gray-800 flex flex-col gap-4">
+            <button onclick="resetApp()" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest hover:text-red-500 transition-colors">Clear Saved Key</button>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col relative w-full bg-white dark:bg-gray-950">
-        <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
-            <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center py-20">
-                <img src="logo.png" alt="Logo" class="w-20 h-20 mb-8 opacity-20 grayscale">
-                <h1 class="text-4xl font-black mb-2 tracking-tight">System Online</h1>
-                <p class="text-gray-500">How can I assist you today?</p>
+    <!-- Main View -->
+    <main class="flex-1 flex flex-col relative">
+        <header class="h-16 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 lg:px-10">
+            <div class="flex items-center gap-3 lg:hidden">
+                <div class="w-8 h-8" id="header-logo"></div>
+                <span class="font-bold">Console AI</span>
             </div>
-            <div id="messages-area" class="max-w-4xl mx-auto w-full space-y-8 pb-32"></div>
+            <div id="mode-indicator" class="hidden lg:block text-xs font-bold text-blue-500 uppercase tracking-widest">
+                [ Standard Intelligence Active ]
+            </div>
+            <button onclick="toggleTheme()" class="w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <i class="fa-solid fa-circle-half-stroke"></i>
+            </button>
+        </header>
+
+        <div id="chat-viewport" class="flex-1 overflow-y-auto custom-scrollbar">
+            <div id="welcome-msg" class="h-full flex flex-col items-center justify-center text-center p-10 opacity-50">
+                <div class="w-24 h-24 mb-6 grayscale brightness-150 animate-pulse-slow" id="welcome-logo"></div>
+                <h2 class="text-3xl font-black mb-2">Console AI</h2>
+                <p class="max-w-xs mx-auto text-sm leading-relaxed">Neural session ready. Mode: <span id="current-mode-label">Standard</span></p>
+            </div>
+            <div id="messages" class="max-w-4xl mx-auto py-10 px-6 space-y-10"></div>
         </div>
 
-        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white dark:from-gray-950">
-            <div class="max-w-4xl mx-auto flex items-end gap-3 bg-gray-100 dark:bg-gray-900 p-2 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl">
-                <textarea id="user-input" rows="1" placeholder="Type your message..." class="w-full bg-transparent border-0 focus:ring-0 py-3 px-4 resize-none" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
-                <button onclick="sendMessage()" id="send-btn" class="w-12 h-12 flex-shrink-0 bg-blue-600 rounded-xl text-white hover:bg-blue-700 transition-all"><i class="fa-solid fa-paper-plane"></i></button>
+        <div class="p-6">
+            <div class="max-w-4xl mx-auto relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl blur opacity-10 group-focus-within:opacity-20 transition-opacity"></div>
+                <div class="relative bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-2 flex items-end gap-2 shadow-sm">
+                    <textarea id="msg-input" placeholder="Enter command..." class="flex-1 bg-transparent border-0 focus:ring-0 p-3 max-h-40 min-h-[48px] resize-none overflow-hidden" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                    <button onclick="send()" class="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center justify-center transition-all disabled:opacity-50" id="send-btn">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </main>
 
     <script>
-        let USER_API_KEY = localStorage.getItem('gemini_api_key') || "";
-        const STATE = { chats: [], activeChatId: null, isGenerating: false };
+        let key = localStorage.getItem('console_key');
+        const state = { 
+            chats: [], 
+            activeId: null, 
+            loading: false, 
+            mode: 'standard',
+            systemPrompts: {
+                standard: "You are Console AI, a helpful and direct assistant. Maintain a professional yet friendly tone.",
+                creative: "You are Console AI in Creative Mode. Be imaginative, descriptive, and poetic. Use metaphors and think outside the box.",
+                technical: "You are Console AI in Technical Mode. Provide concise, expert-level explanations, code snippets, and architectural advice. Prioritize accuracy and efficiency."
+            }
+        };
 
-        function init() {
-            if (!USER_API_KEY) showApiModal();
-            createNewChat(true);
-            renderChatList();
+        function injectLogos() {
+            const svgContent = document.getElementById('logo-svg').innerHTML;
+            document.querySelectorAll('#setup-logo, #sidebar-logo, #header-logo, #welcome-logo').forEach(el => {
+                el.innerHTML = svgContent;
+            });
         }
 
-        function showApiModal() { document.getElementById('api-modal').classList.remove('hidden'); }
-        function saveApiKey() {
-            const val = document.getElementById('api-key-input').value.trim();
+        function init() {
+            injectLogos();
+            if (!key) document.getElementById('setup-screen').classList.remove('hidden');
+            newChat(true);
+            if (localStorage.theme === 'light') document.documentElement.classList.remove('dark');
+        }
+
+        function setMode(m) {
+            state.mode = m;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-500');
+                btn.classList.add('text-gray-500');
+            });
+            const activeBtn = document.getElementById(`btn-${m}`);
+            activeBtn.classList.add('bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-500');
+            activeBtn.classList.remove('text-gray-500');
+            
+            document.getElementById('mode-indicator').innerText = `[ ${m.toUpperCase()} Intelligence Active ]`;
+            document.getElementById('current-mode-label').innerText = m.charAt(0).toUpperCase() + m.slice(1);
+        }
+
+        function saveKey() {
+            const val = document.getElementById('api-input').value.trim();
             if (val) {
-                USER_API_KEY = val;
-                localStorage.setItem('gemini_api_key', val);
-                document.getElementById('api-modal').classList.add('hidden');
+                key = val;
+                localStorage.setItem('console_key', val);
+                document.getElementById('setup-screen').classList.add('hidden');
             }
         }
 
-        function createNewChat(init = false) {
-            const id = Date.now().toString();
-            STATE.chats.unshift({ id, title: "New Conversation", messages: [] });
-            STATE.activeChatId = id;
-            if (!init) { renderChatList(); renderMessages(); }
+        function resetApp() {
+            localStorage.removeItem('console_key');
+            location.reload();
         }
 
-        async function sendMessage() {
-            const input = document.getElementById('user-input');
+        function newChat(isInit = false) {
+            const id = Date.now().toString();
+            state.chats.unshift({ id, title: "Untitled Message", messages: [] });
+            state.activeId = id;
+            if (!isInit) { renderChats(); renderMessages(); }
+        }
+
+        async function send() {
+            const input = document.getElementById('msg-input');
             const text = input.value.trim();
-            if (!text || STATE.isGenerating) return;
+            if (!text || state.loading) return;
 
-            const chat = STATE.chats.find(c => c.id === STATE.activeChatId);
+            const chat = state.chats.find(c => c.id === state.activeId);
+            if (chat.messages.length === 0) { chat.title = text.slice(0, 30); renderChats(); }
+            
             chat.messages.push({ role: 'user', content: text });
-            if (chat.messages.length === 1) { chat.title = text.slice(0, 20) + "..."; renderChatList(); }
-
             input.value = '';
             input.style.height = 'auto';
             renderMessages();
 
-            STATE.isGenerating = true;
-            chat.messages.push({ role: 'model', content: '', isLoading: true });
+            state.loading = true;
+            chat.messages.push({ role: 'model', content: '...', loading: true });
             renderMessages();
 
             try {
-                const response = await fetchGemini(chat.messages);
-                chat.messages[chat.messages.length - 1].content = response;
-                chat.messages[chat.messages.length - 1].isLoading = false;
+                const aiResponse = await callAI(chat.messages);
+                chat.messages[chat.messages.length - 1] = { role: 'model', content: aiResponse };
             } catch (e) {
-                chat.messages[chat.messages.length - 1].content = `**Error:** ${e.message}. Please click "Update API Key" below if your key is invalid.`;
-                chat.messages[chat.messages.length - 1].isLoading = false;
+                chat.messages[chat.messages.length - 1] = { role: 'model', content: `**Error:** ${e.message}. Key status: UNSTABLE.` };
             } finally {
-                STATE.isGenerating = false;
+                state.loading = false;
                 renderMessages();
             }
         }
 
-        async function fetchGemini(history) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${USER_API_KEY}`;
-            const contents = history.filter(m => !m.isLoading).map(m => ({
+        async function callAI(messages) {
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${key}`;
+            
+            const contents = messages.filter(m => !m.loading).map(m => ({
                 role: m.role === 'user' ? 'user' : 'model',
                 parts: [{ text: m.content }]
             }));
 
-            const res = await fetch(url, {
+            const res = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents })
+                body: JSON.stringify({ 
+                    contents,
+                    systemInstruction: { parts: [{ text: state.systemPrompts[state.mode] }] }
+                })
             });
             const data = await res.json();
             if (data.error) throw new Error(data.error.message);
@@ -176,38 +250,43 @@
         }
 
         function renderMessages() {
-            const chat = STATE.chats.find(c => c.id === STATE.activeChatId);
-            const area = document.getElementById('messages-area');
-            const welcome = document.getElementById('welcome-screen');
+            const chat = state.chats.find(c => c.id === state.activeId);
+            const container = document.getElementById('messages');
+            const welcome = document.getElementById('welcome-msg');
             
-            if (!chat || chat.messages.length === 0) { welcome.classList.remove('hidden'); area.classList.add('hidden'); return; }
-            welcome.classList.add('hidden');
-            area.classList.remove('hidden');
+            if (!chat || chat.messages.length === 0) { welcome.style.display = 'flex'; container.innerHTML = ''; return; }
+            welcome.style.display = 'none';
 
-            area.innerHTML = chat.messages.map(m => `
-                <div class="flex gap-4 ${m.role === 'user' ? 'flex-row-reverse' : ''} animate-fade-in">
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${m.role === 'user' ? 'bg-blue-600' : 'bg-gray-800 border border-gray-700'}">
-                        ${m.role === 'user' ? '<i class="fa-solid fa-user text-[10px] text-white"></i>' : '<img src="logo.png" class="w-5 h-5">'}
+            container.innerHTML = chat.messages.map(m => `
+                <div class="flex gap-6 ${m.role === 'user' ? 'flex-row-reverse' : ''}">
+                    <div class="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 ${m.role === 'user' ? 'bg-blue-600 shadow-lg shadow-blue-500/20' : 'bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700'}">
+                        ${m.role === 'user' ? '<i class="fa-solid fa-user text-white text-xs"></i>' : '<div class="w-6 h-6">' + document.getElementById('logo-svg').innerHTML + '</div>'}
                     </div>
-                    <div class="p-4 rounded-2xl max-w-[85%] ${m.role === 'user' ? 'bg-blue-600 text-white shadow-lg' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm'}">
-                        ${m.isLoading ? '<div class="flex gap-1"><div class="typing-dot w-1.5 h-1.5 bg-gray-400 rounded-full"></div><div class="typing-dot w-1.5 h-1.5 bg-gray-400 rounded-full" style="animation-delay: 0.2s"></div><div class="typing-dot w-1.5 h-1.5 bg-gray-400 rounded-full" style="animation-delay: 0.4s"></div></div>' : marked.parse(m.content)}
+                    <div class="flex-1 space-y-2 ${m.role === 'user' ? 'text-right' : ''}">
+                        <div class="inline-block p-4 rounded-3xl ${m.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none shadow-md' : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-tl-none'} text-sm md:text-base">
+                            ${m.loading ? '<i class="fa-solid fa-ellipsis animate-bounce"></i>' : marked.parse(m.content)}
+                        </div>
                     </div>
                 </div>
             `).join('');
-            document.getElementById('chat-container').scrollTo(0, document.getElementById('chat-container').scrollHeight);
+            
+            const viewport = document.getElementById('chat-viewport');
+            viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
         }
 
-        function renderChatList() {
-            document.getElementById('chat-list').innerHTML = STATE.chats.map(c => `
-                <div onclick="switchChat('${c.id}')" class="p-3 rounded-xl cursor-pointer text-sm truncate transition-all ${c.id === STATE.activeChatId ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-500 font-bold' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}">
-                    <i class="fa-regular fa-message mr-2"></i> ${c.title}
+        function renderChats() {
+            document.getElementById('chats-container').innerHTML = state.chats.map(c => `
+                <div onclick="state.activeId='${c.id}';renderMessages();renderChats();" class="p-3 rounded-xl cursor-pointer truncate transition-all ${c.id === state.activeId ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-500 font-bold' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}">
+                    <i class="fa-regular fa-comment mr-2"></i> ${c.title}
                 </div>
             `).join('');
         }
 
-        function switchChat(id) { STATE.activeChatId = id; renderChatList(); renderMessages(); }
-        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
-        
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        }
+
         init();
     </script>
 </body>
